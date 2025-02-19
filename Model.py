@@ -1,4 +1,5 @@
 from databasefile import db
+from sqlalchemy import Enum 
 
 class Employee(db.Model):
     __tablename__ = 'employees'
@@ -10,8 +11,8 @@ class Employee(db.Model):
     phone_number = db.Column(db.String(15), unique=True, nullable=True)
     role = db.Column(db.String(100), nullable=False)
     manager_id = db.Column(db.Integer, db.ForeignKey('employees.employee_id'), nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+    # created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    # updated_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
     department = db.Column(db.String(100), nullable=True)
 
     # Relationship to Self for manager-Employee hierarchy
@@ -41,15 +42,17 @@ class WeekEntry(db.Model):
 
 class DayEntry(db.Model):
     __tablename__ = 'day_entries'
+
+    types_enum = ("Working", "Holiday", "Leave")
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     timesheet_id = db.Column(db.Integer, db.ForeignKey('weekentry.timesheet_id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('employees.employee_id'), nullable=False)
-    project_name = db.Column(db.String(100), nullable=False)
-    types = db.Column(db.String(50), nullable=False)
+    types = db.Column(Enum(*types_enum, name="entry_types"), nullable=False)
     working_hour = db.Column(db.Float, nullable=False)
-    time_slot = db.Column(db.Float, nullable=False)
+
+    
 
     # Relationships
     # timesheet = db.relationship("WeekEntry", backref="day_entries")
@@ -62,14 +65,18 @@ class TimesheetslotEntry(db.Model):
     __tablename__ = 'timesheet_entries'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
     timesheet_id = db.Column(db.Integer, db.ForeignKey('weekentry.timesheet_id'), nullable=False)
+    day_entry = db.Column(db.String(20), nullable=False)
+    time_start_slot = db.Column(db.String, nullable=False)
+    time_end_slot = db.Column(db.String, nullable=False)
     project_name = db.Column(db.String(100), nullable=False)
     project_id = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text, nullable=True)
     links = db.Column(db.String(500), nullable=True)
     category = db.Column(db.String(100), nullable=False)
-    day_entry = db.Column(db.String(20), nullable=False)
+
+    def __repr__(self):
+        return f"<TimesheetslotEntry {self.project_name} - {self.time_period} - {self.time_slot} hours>"
 
     # Relationships
     # timesheet = db.relationship("WeekEntry", backref="timesheet_entries")

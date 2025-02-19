@@ -11,6 +11,7 @@ from  application_routes import *
 # init_db(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///timesheet.db'  # Or use PostgreSQL/MySQL URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config["BASE_URL"] = "http://127.0.0.1:5000"
 
 # timesheet = [
 #     {
